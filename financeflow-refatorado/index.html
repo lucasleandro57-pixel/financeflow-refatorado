@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceFlow Pro - Controle Financeiro Premium</title>
+    <link rel="icon" href="data:,">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+    <div class="container">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">💰 FinanceFlow</div>
+            </div>
+            <nav class="nav-menu">
+                <div class="nav-item active" data-view="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-view="transactions">
+                    <span class="nav-icon">💸</span>
+                    <span>Transações</span>
+                </div>
+                <div class="nav-item" data-view="control">
+                    <span class="nav-icon">▣</span>
+                    <span>Controle Mensal</span>
+                </div>
+                <div class="nav-item" data-view="investments">
+                    <span class="nav-icon">◈</span>
+                    <span>Investimentos</span>
+                </div>
+                <div class="nav-item" data-view="budget">
+                    <span class="nav-icon">📋</span>
+                    <span>Orçamento</span>
+                </div>
+                <div class="nav-item" data-view="goals">
+                    <span class="nav-icon">🎯</span>
+                    <span>Metas</span>
+                </div>
+                <div class="nav-item" data-view="accounts">
+                    <span class="nav-icon">🏦</span>
+                    <span>Contas</span>
+                </div>
+                <div class="nav-item" data-view="reports">
+                    <span class="nav-icon">📈</span>
+                    <span>Relatórios</span>
+                </div>
+                <div class="nav-item" data-view="settings">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Configurações</span>
+                </div>
+            </nav>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="header">
+                <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="addTransactionBtn">
+                        <span>➕</span> Nova Transação
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area" id="contentArea">
+                <!-- DASHBOARD VIEW -->
+                <div id="dashboard-view" class="view">
+                    <div class="dashboard-grid dashboard-summary-grid" id="metricsGrid">
+                        <!-- Metrics will be inserted here -->
+                    </div>
+
+                </div>
+
+                <!-- TRANSACTIONS VIEW -->
+                <div id="transactions-view" class="view" style="display: none;">
+                    <div class="transaction-workspace">
+                        <div class="card transaction-action-card">
+                            <div class="transaction-card-header">
+                                <div>
+                                    <div class="card-title">Anexos</div>
+                                    <div class="transaction-card-title">Notas e comprovantes</div>
+                                    <div class="transaction-card-subtitle">PDF, imagem, CSV, JSON ou TXT.</div>
+                                </div>
+                                <button class="btn btn-primary" id="chooseTransactionFilesBtn">Anexar</button>
+                            </div>
+                            <div class="import-dropzone compact-dropzone clean-dropzone" id="transactionDropzone">
+                                <input type="file" id="transactionImportFile" multiple accept=".csv,.json,.txt,.pdf,.png,.jpg,.jpeg,.webp" style="display: none;">
+                                <div class="import-title">Solte arquivos aqui</div>
+                            </div>
+                        </div>
+
+                        <div class="card transaction-action-card">
+                            <div class="card-title">Manual</div>
+                            <div class="transaction-card-title">Novo lancamento</div>
+                            <form id="quickTransactionForm" class="quick-transaction-form">
+                                <div class="form-group">
+                                    <label class="form-label">Fonte</label>
+                                    <input type="text" class="form-control" id="quickTransactionSource" placeholder="Ex: aluguel, DAS, fatura..." required>
+                                </div>
+                                <div class="quick-transaction-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Valor</label>
+                                        <input type="text" inputmode="decimal" class="form-control" id="quickTransactionValue" placeholder="0,00" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Tipo</label>
+                                        <select class="form-control" id="quickTransactionType" required>
+                                            <option value="income">Receita</option>
+                                            <option value="expense">Despesa</option>
+                                            <option value="investment">Investimento</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="quick-transaction-row">
+                                    <div class="form-group">
+                                        <label class="form-label">Categoria</label>
+                                        <select class="form-control" id="quickTransactionCategory" required></select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Data</label>
+                                        <input type="date" class="form-control" id="quickTransactionDate" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary transaction-submit-btn">Adicionar</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div id="transactionImportPreview" class="transaction-preview"></div>
+
+                    <details class="card transaction-collapse">
+                        <summary>IA e treinamento</summary>
+                        <form id="aiSettingsForm" class="finance-form-grid transaction-collapsed-body">
+                            <div class="form-group finance-form-span">
+                                <label class="form-label">Chave OpenAI</label>
+                                <input type="password" class="form-control" id="openaiApiKeyInput" placeholder="Cole sua API key para a IA interpretar anexos">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Modelo</label>
+                                <input type="text" class="form-control" id="openaiModelInput" placeholder="gpt-4o-mini">
+                            </div>
+                            <div class="finance-form-actions">
+                                <button type="submit" class="btn btn-primary">Salvar IA</button>
+                            </div>
+                        </form>
+                        <div class="muted-text" id="aiStatusText">Sem chave: o app usa apenas regras locais.</div>
+
+                        <form id="aiTrainingForm" class="finance-form-grid transaction-collapsed-body">
+                            <div class="form-group finance-form-span">
+                                <label class="form-label">Exemplo para treinar</label>
+                                <textarea class="form-control" id="aiTrainingText" rows="2" placeholder="Ex: Fisio e saude abril 26.pdf e nota fiscal emitida, receita liquida, valor 2799,91"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Tipo correto</label>
+                                <select class="form-control" id="aiTrainingType">
+                                    <option value="income">Receita</option>
+                                    <option value="expense">Despesa</option>
+                                    <option value="investment">Investimento</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Categoria correta</label>
+                                <input type="text" class="form-control" id="aiTrainingCategory" placeholder="Ex: Nota Fiscal Emitida">
+                            </div>
+                            <div class="finance-form-actions">
+                                <button type="submit" class="btn btn-secondary">Adicionar Treino</button>
+                            </div>
+                        </form>
+                        <div id="aiTrainingList" class="transaction-training-list"></div>
+                    </details>
+
+                    <details class="card transaction-collapse">
+                        <summary>Filtros</summary>
+                        <div class="filter-group transaction-filter-grid">
+                            <div class="filter-item">
+                                <label class="form-label">Periodo</label>
+                                <select class="form-control" id="filterPeriod">
+                                    <option value="all">Todos</option>
+                                    <option value="month" selected>Este Mes</option>
+                                    <option value="quarter">Este Trimestre</option>
+                                    <option value="year">Este Ano</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">Tipo</label>
+                                <select class="form-control" id="filterType">
+                                    <option value="">Todos</option>
+                                    <option value="income">Receita</option>
+                                    <option value="expense">Despesa</option>
+                                    <option value="investment">Investimento</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">Categoria</label>
+                                <select class="form-control" id="filterCategory">
+                                    <option value="">Todas</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">Status</label>
+                                <select class="form-control" id="filterStatus">
+                                    <option value="">Todos</option>
+                                    <option value="paid">Pago</option>
+                                    <option value="pending">Pendente</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label class="form-label">Busca</label>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Buscar...">
+                            </div>
+                        </div>
+                    </details>
+
+                    <div class="card transaction-list-card">
+                        <div class="card-title">Lancamentos</div>
+                        <div class="table-responsive">
+                            <table id="transactionsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Descricao</th>
+                                        <th>Fonte</th>
+                                        <th>Categoria</th>
+                                        <th>Conta</th>
+                                        <th>Tipo</th>
+                                        <th>Valor</th>
+                                        <th>Status</th>
+                                        <th>Acoes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactionsBody">
+                                    <!-- Transactions will be inserted here -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="transactionsEmpty" class="empty-state" style="display: none;">
+                            <div class="empty-state-icon">??</div>
+                            <div class="empty-state-title">Nenhuma transacao encontrada</div>
+                            <p>Adicione um lancamento manual ou anexe um arquivo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTROL VIEW -->
+                <div id="control-view" class="view" style="display: none;">
+                    <div class="dashboard-grid" id="controlMetrics"></div>
+
+                    <div class="card">
+                        <div class="card-title">Receita Líquida e Impostos do Mês</div>
+                        <form id="monthlyRecordForm" class="finance-form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Mês</label>
+                                <input type="month" class="form-control" id="monthlyRecordMonth" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Entrada líquida no mês</label>
+                                <input type="text" inputmode="decimal" class="form-control" id="monthlyNetIncome" placeholder="0,00" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Impostos pagos</label>
+                                <input type="text" inputmode="decimal" class="form-control" id="monthlyTaxesPaid" placeholder="0,00" required>
+                            </div>
+                            <div class="form-group finance-form-span">
+                                <label class="form-label">Observações</label>
+                                <textarea class="form-control" id="monthlyNotes" rows="2" placeholder="Ex: notas fiscais, DAS, IR, retenções..."></textarea>
+                            </div>
+                            <div class="finance-form-actions">
+                                <button type="submit" class="btn btn-primary">Salvar Mês</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="finance-two-col">
+                        <div class="card">
+                            <div class="card-title">Gastos Fixos</div>
+                            <div id="fixedExpensesList"></div>
+                            <button class="btn btn-primary" id="addFixedExpenseBtn" style="margin-top: 16px;">Adicionar Gasto Fixo</button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-title">Cartões de Crédito</div>
+                            <div id="creditCardsList"></div>
+                            <button class="btn btn-primary" id="addCreditCardBtn" style="margin-top: 16px;">Adicionar Cartão</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INVESTMENTS VIEW -->
+                <div id="investments-view" class="view" style="display: none;">
+                    <div class="dashboard-grid" id="investmentMetrics"></div>
+
+                    <div class="dashboard-grid investment-cards-grid" id="investmentsList"></div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin: 0 0 24px;">
+                        <button class="btn btn-primary" id="addInvestmentBtn">Adicionar Ativo</button>
+                        <button class="btn btn-secondary" id="refreshQuotesBtn">Atualizar Cotações</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Cotações em Tempo Real</div>
+                        <form id="quoteSettingsForm" class="finance-form-grid">
+                            <div class="form-group finance-form-span">
+                                <label class="form-label">Token brapi</label>
+                                <input type="password" class="form-control" id="brapiTokenInput" placeholder="Necessário para a maioria das ações e criptomoedas.">
+                            </div>
+                            <div class="finance-form-actions">
+                                <button type="submit" class="btn btn-primary">Salvar Token</button>
+                            </div>
+                        </form>
+                        <div class="muted-text" id="quoteStatusText">Sem token: apenas algumas ações gratuitas conseguem atualizar automaticamente.</div>
+                    </div>
+
+                    <div class="finance-two-col">
+                        <div class="card">
+                            <div class="card-title">Gráfico Geral</div>
+                            <div class="chart-container">
+                                <div class="chart-wrapper">
+                                    <canvas id="investmentsChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- IMPORTS VIEW -->
+                <div id="imports-view" class="view" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Anexar Dados Financeiros</div>
+                        <div class="import-dropzone" id="importDropzone">
+                            <input type="file" id="smartImportFile" multiple accept=".csv,.json,.txt" style="display: none;">
+                            <div class="import-title">Selecione ou arraste arquivos CSV, JSON ou TXT</div>
+                            <div class="import-subtitle">O app interpreta descrições e valores para ligar cada item a receita líquida, impostos, gastos fixos, cartão ou investimentos.</div>
+                            <button class="btn btn-primary" id="chooseImportFilesBtn">Anexar Arquivos</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Itens Interpretados</div>
+                        <div id="importPreview"></div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">Histórico de Anexos</div>
+                        <div id="attachmentsList"></div>
+                    </div>
+                </div>
+
+                <!-- BUDGET VIEW -->
+                <div id="budget-view" class="view" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Orçamentos Mensais</div>
+                        <div id="budgetsList"></div>
+                    </div>
+                    <button class="btn btn-primary" id="addBudgetBtn" style="margin-top: 16px;">
+                        <span>➕</span> Novo Orçamento
+                    </button>
+                </div>
+
+                <!-- GOALS VIEW -->
+                <div id="goals-view" class="view" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Metas Financeiras</div>
+                        <div id="goalsList"></div>
+                    </div>
+                    <button class="btn btn-primary" id="addGoalBtn" style="margin-top: 16px;">
+                        <span>➕</span> Nova Meta
+                    </button>
+                </div>
+
+                <!-- ACCOUNTS VIEW -->
+                <div id="accounts-view" class="view" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Contas Financeiras</div>
+                        <div id="accountsList"></div>
+                    </div>
+                    <button class="btn btn-primary" id="addAccountBtn" style="margin-top: 16px;">
+                        <span>➕</span> Nova Conta
+                    </button>
+                </div>
+
+                <!-- REPORTS VIEW -->
+                <div id="reports-view" class="view" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Resumo por Categoria</div>
+                        <div id="categoryReport"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Resumo por Conta</div>
+                        <div id="accountReport"></div>
+                    </div>
+                </div>
+
+                <!-- SETTINGS VIEW -->
+                <div id="settings-view" class="view" style="display: none;">
+                    <div class="card">
+                        <div class="card-title">Backup e Dados</div>
+                        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" id="exportJsonBtn">
+                                <span>📥</span> Exportar JSON
+                            </button>
+                            <button class="btn btn-primary" id="importJsonBtn">
+                                <span>📤</span> Importar JSON
+                            </button>
+                            <button class="btn btn-primary" id="exportCsvBtn">
+                                <span>📊</span> Exportar CSV
+                            </button>
+                            <button class="btn btn-danger" id="clearDataBtn">
+                                <span>🗑️</span> Limpar Dados
+                            </button>
+                        </div>
+                        <input type="file" id="importFile" style="display: none;" accept=".json">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <!-- Transaction Modal -->
+    <div class="modal" id="transactionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="transactionModalTitle">Nova Transação</h2>
+                <button class="modal-close" onclick="closeModal('transactionModal')">✕</button>
+            </div>
+            <form id="transactionForm">
+                <div class="form-group">
+                    <label class="form-label">Tipo</label>
+                    <select class="form-control" id="transactionType" required>
+                        <option value="">Selecione...</option>
+                        <option value="income">Receita</option>
+                        <option value="expense">Despesa</option>
+                        <option value="investment">Investimento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Descrição</label>
+                    <input type="text" class="form-control" id="transactionDescription" placeholder="Ex: Salário, Aluguel..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valor</label>
+                    <input type="text" inputmode="decimal" class="form-control" id="transactionValue" placeholder="0,00" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-control" id="transactionCategory" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Conta</label>
+                    <select class="form-control" id="transactionAccount" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data</label>
+                    <input type="date" class="form-control" id="transactionDate" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-control" id="transactionStatus" required>
+                        <option value="paid">Pago</option>
+                        <option value="pending">Pendente</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Observação</label>
+                    <textarea class="form-control" id="transactionNote" placeholder="Adicione uma nota..." rows="3"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('transactionModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Budget Modal -->
+    <div class="modal" id="budgetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Novo Orçamento</h2>
+                <button class="modal-close" onclick="closeModal('budgetModal')">✕</button>
+            </div>
+            <form id="budgetForm">
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-control" id="budgetCategory" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Limite Mensal</label>
+                    <input type="number" class="form-control" id="budgetLimit" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('budgetModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div class="modal" id="goalModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nova Meta</h2>
+                <button class="modal-close" onclick="closeModal('goalModal')">✕</button>
+            </div>
+            <form id="goalForm">
+                <div class="form-group">
+                    <label class="form-label">Nome da Meta</label>
+                    <input type="text" class="form-control" id="goalName" placeholder="Ex: Viagem, Carro..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valor Alvo</label>
+                    <input type="number" class="form-control" id="goalTarget" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valor Atual</label>
+                    <input type="number" class="form-control" id="goalCurrent" placeholder="0.00" step="0.01" value="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Prazo (opcional)</label>
+                    <input type="date" class="form-control" id="goalDeadline">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('goalModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Account Modal -->
+    <div class="modal" id="accountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nova Conta</h2>
+                <button class="modal-close" onclick="closeModal('accountModal')">✕</button>
+            </div>
+            <form id="accountForm">
+                <div class="form-group">
+                    <label class="form-label">Nome da Conta</label>
+                    <input type="text" class="form-control" id="accountName" placeholder="Ex: Carteira, Conta Corrente..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Saldo Inicial</label>
+                    <input type="number" class="form-control" id="accountBalance" placeholder="0.00" step="0.01" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('accountModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fixed Expense Modal -->
+    <div class="modal" id="fixedExpenseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="fixedExpenseModalTitle">Novo Gasto Fixo</h2>
+                <button class="modal-close" onclick="closeModal('fixedExpenseModal')">✕</button>
+            </div>
+            <form id="fixedExpenseForm">
+                <div class="form-group">
+                    <label class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="fixedExpenseName" placeholder="Ex: Aluguel, internet..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Categoria</label>
+                    <select class="form-control" id="fixedExpenseCategory" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valor mensal</label>
+                    <input type="text" inputmode="decimal" class="form-control" id="fixedExpenseAmount" placeholder="0,00" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Dia de vencimento</label>
+                    <input type="number" class="form-control" id="fixedExpenseDueDay" min="1" max="31" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Conta</label>
+                    <select class="form-control" id="fixedExpenseAccount" required></select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-control" id="fixedExpenseActive">
+                        <option value="true">Ativo</option>
+                        <option value="false">Pausado</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('fixedExpenseModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Credit Card Modal -->
+    <div class="modal" id="creditCardModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="creditCardModalTitle">Novo Cartão</h2>
+                <button class="modal-close" onclick="closeModal('creditCardModal')">✕</button>
+            </div>
+            <form id="creditCardForm">
+                <div class="form-group">
+                    <label class="form-label">Nome</label>
+                    <input type="text" class="form-control" id="creditCardName" placeholder="Ex: Nubank, Inter..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Limite</label>
+                    <input type="text" inputmode="decimal" class="form-control" id="creditCardLimit" placeholder="0,00" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fechamento</label>
+                    <input type="number" class="form-control" id="creditCardClosingDay" min="1" max="31" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Vencimento</label>
+                    <input type="number" class="form-control" id="creditCardDueDay" min="1" max="31" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Fatura atual</label>
+                    <input type="text" inputmode="decimal" class="form-control" id="creditCardCurrentBill" placeholder="0,00" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Valor já pago</label>
+                    <input type="text" inputmode="decimal" class="form-control" id="creditCardPaidAmount" placeholder="0,00" value="0">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('creditCardModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Investment Modal -->
+    <div class="modal" id="investmentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="investmentModalTitle">Novo Ativo</h2>
+                <button class="modal-close" onclick="closeModal('investmentModal')">✕</button>
+            </div>
+            <form id="investmentForm">
+                <div class="form-group">
+                    <label class="form-label">Tipo de ativo</label>
+                    <select class="form-control" id="investmentAssetType" required>
+                        <option value="stock">Ação/FII</option>
+                        <option value="crypto">Criptomoeda</option>
+                        <option value="fixedIncome">Renda fixa/Cofrinho</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="investmentTickerLabel">Ticker</label>
+                    <input type="text" class="form-control" id="investmentTicker" placeholder="Ex: PETR4, ITUB4, BTC, ETH" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="investmentNameLabel">Nome</label>
+                    <input type="text" class="form-control" id="investmentName" placeholder="Ex: Petrobras PN" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="investmentQuantityLabel">Quantidade</label>
+                    <input type="number" class="form-control" id="investmentQuantity" placeholder="0" step="0.00000001" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="investmentAveragePriceLabel">Preço médio</label>
+                    <input type="text" inputmode="decimal" class="form-control" id="investmentAveragePrice" placeholder="0,00" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="investmentTargetPriceLabel">Preço de decisão</label>
+                    <input type="text" inputmode="decimal" class="form-control" id="investmentTargetPrice" placeholder="0,00">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('investmentModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+    <script src="js/state.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/finance.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/transactions-render.js"></script>
+    <script src="js/budgets-render.js"></script>
+    <script src="js/goals-render.js"></script>
+    <script src="js/accounts-render.js"></script>
+    <script src="js/reports-render.js"></script>
+    <script src="js/control.js"></script>
+    <script src="js/investments.js"></script>
+    <script src="js/smart-import.js"></script>
+    <script src="js/transactions-crud.js"></script>
+    <script src="js/budgets-crud.js"></script>
+    <script src="js/goals-crud.js"></script>
+    <script src="js/accounts-crud.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
